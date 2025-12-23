@@ -118,6 +118,8 @@ export function AddAnimalDialog({
   const handleSubmit = (data: FormValues) => {
     onSubmit({
       ...data,
+      sireId: data.sireId === "none" ? undefined : data.sireId,
+      damId: data.damId === "none" ? undefined : data.damId,
       photo: photoPreview || undefined,
     });
     form.reset();
@@ -332,7 +334,7 @@ export function AddAnimalDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None / Unknown</SelectItem>
+                          <SelectItem value="none">None / Unknown</SelectItem>
                           {maleAnimals.map((animal) => (
                             <SelectItem key={animal.id} value={animal.id}>
                               {animal.name} ({animal.tagNumber})
@@ -358,7 +360,7 @@ export function AddAnimalDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None / Unknown</SelectItem>
+                          <SelectItem value="none">None / Unknown</SelectItem>
                           {femaleAnimals.map((animal) => (
                             <SelectItem key={animal.id} value={animal.id}>
                               {animal.name} ({animal.tagNumber})
