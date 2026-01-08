@@ -33,8 +33,8 @@ serve(async (req) => {
       throw new Error('MongoDB credentials not configured');
     }
 
-    const body: MongoDBRequest = await req.json();
-    const { action, collection, database = 'dairy_farm', filter, document, documents, update, projection, sort, limit, skip } = body;
+  const body: MongoDBRequest = await req.json();
+    const { action, collection, database = 'Dairyflow', filter, document, documents, update, projection, sort, limit, skip } = body;
 
     if (!action || !collection) {
       throw new Error('Missing required fields: action and collection');
@@ -44,7 +44,7 @@ serve(async (req) => {
     const dataApiUrl = `https://data.mongodb-api.com/app/${MONGODB_APP_ID}/endpoint/data/v1/action/${action}`;
 
     const payload: Record<string, unknown> = {
-      dataSource: 'Cluster0',
+      dataSource: 'ClusterDairy',
       database,
       collection,
     };
