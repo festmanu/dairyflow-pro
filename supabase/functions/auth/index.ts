@@ -66,8 +66,8 @@ async function callMongoDBAPI(appId: string, apiKey: string, action: string, pay
       'api-key': apiKey,
     },
     body: JSON.stringify({
-      dataSource: 'Cluster0',
-      database: 'dairy_farm',
+      dataSource: 'ClusterDairy',
+      database: 'Dairyflow',
       collection: 'users',
       ...payload,
     }),
