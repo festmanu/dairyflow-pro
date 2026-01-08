@@ -1,4 +1,4 @@
-import { Animal, HealthRecord, MilkRecord, Alert, DashboardStats } from '@/types';
+import { Animal, HealthRecord, MilkRecord, Alert, DashboardStats, BreedingRecord, FeedItem, Transaction } from '@/types';
 
 export const mockAnimals: Animal[] = [
   {
@@ -180,4 +180,72 @@ export const herdComposition = [
   { name: 'Dry', value: 8, color: 'hsl(var(--chart-2))' },
   { name: 'Heifers', value: 6, color: 'hsl(var(--chart-3))' },
   { name: 'Bulls', value: 2, color: 'hsl(var(--chart-4))' },
+];
+
+// Breeding Records
+export const mockBreedingRecords: BreedingRecord[] = [
+  {
+    id: '1',
+    animalId: '3',
+    date: '2024-01-20',
+    type: 'insemination',
+    sireId: '5',
+    sireName: 'Max',
+    technician: 'John Doe',
+    result: 'pending',
+    notes: 'First service this cycle'
+  },
+  {
+    id: '2',
+    animalId: '6',
+    date: '2024-01-21',
+    type: 'heat_detection',
+    notes: 'Strong standing heat observed at 6am'
+  },
+  {
+    id: '3',
+    animalId: '1',
+    date: '2023-11-15',
+    type: 'pregnancy_check',
+    result: 'negative',
+    notes: 'Recheck in 21 days'
+  },
+  {
+    id: '4',
+    animalId: '2',
+    date: '2023-10-05',
+    type: 'calving',
+    notes: 'Normal delivery, heifer calf born'
+  }
+];
+
+// Feed Items
+export const mockFeedItems: FeedItem[] = [
+  { id: '1', name: 'Corn Silage', category: 'forage', unit: 'kg', costPerUnit: 0.08, currentStock: 5000, minimumStock: 1000 },
+  { id: '2', name: 'Alfalfa Hay', category: 'forage', unit: 'kg', costPerUnit: 0.15, currentStock: 2000, minimumStock: 500 },
+  { id: '3', name: 'Dairy Concentrate', category: 'concentrate', unit: 'kg', costPerUnit: 0.45, currentStock: 800, minimumStock: 200 },
+  { id: '4', name: 'Soybean Meal', category: 'concentrate', unit: 'kg', costPerUnit: 0.55, currentStock: 400, minimumStock: 100 },
+  { id: '5', name: 'Mineral Mix', category: 'mineral', unit: 'kg', costPerUnit: 1.20, currentStock: 150, minimumStock: 50 },
+  { id: '6', name: 'Rolled Corn', category: 'grain', unit: 'kg', costPerUnit: 0.28, currentStock: 1200, minimumStock: 300 },
+];
+
+// Financial Transactions
+export const mockTransactions: Transaction[] = [
+  { id: '1', date: '2024-01-20', type: 'income', category: 'Milk Sales', amount: 2450.00, description: 'Weekly milk payment' },
+  { id: '2', date: '2024-01-19', type: 'expense', category: 'Feed', amount: 850.00, description: 'Concentrate feed purchase' },
+  { id: '3', date: '2024-01-18', type: 'expense', category: 'Veterinary', amount: 320.00, description: 'Monthly vet visit' },
+  { id: '4', date: '2024-01-17', type: 'income', category: 'Livestock Sales', amount: 1800.00, description: 'Sold bull calf' },
+  { id: '5', date: '2024-01-15', type: 'expense', category: 'Labor', amount: 1200.00, description: 'Staff wages' },
+  { id: '6', date: '2024-01-14', type: 'expense', category: 'Utilities', amount: 280.00, description: 'Electricity bill' },
+  { id: '7', date: '2024-01-12', type: 'income', category: 'Milk Sales', amount: 2380.00, description: 'Weekly milk payment' },
+  { id: '8', date: '2024-01-10', type: 'expense', category: 'Equipment', amount: 450.00, description: 'Milking machine parts' },
+];
+
+export const monthlyFinancialData = [
+  { month: 'Jan', income: 9800, expenses: 6200 },
+  { month: 'Feb', income: 10200, expenses: 5800 },
+  { month: 'Mar', income: 11500, expenses: 6400 },
+  { month: 'Apr', income: 10800, expenses: 5900 },
+  { month: 'May', income: 12000, expenses: 6100 },
+  { month: 'Jun', income: 11200, expenses: 6500 },
 ];
