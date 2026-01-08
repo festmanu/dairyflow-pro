@@ -68,7 +68,7 @@ export default function Signup() {
     
     setIsVerifying(true);
     try {
-      await verifyOtp(email, otpCode);
+      await verifyOtp(email, otpCode, password, name);
       toast({
         title: 'Account verified!',
         description: 'Welcome to DairyFlow.',
