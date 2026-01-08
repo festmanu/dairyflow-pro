@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Milk, Mail } from 'lucide-react';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -15,8 +16,11 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const { signup } = useAuth();
+  const [otpCode, setOtpCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const { signup, verifyOtp } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,8 +49,8 @@ export default function Signup() {
       await signup(email, password, name);
       setEmailSent(true);
       toast({
-        title: 'Verification email sent!',
-        description: 'Please check your inbox to verify your email address.',
+        title: 'Verification code sent!',
+        description: 'Please check your inbox for the 6-digit code.',
       });
     } catch (error) {
       toast({
@@ -56,6 +60,28 @@ export default function Signup() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otpCode.length !== 6) return;
+    
+    setIsVerifying(true);
+    try {
+      await verifyOtp(email, otpCode);
+      toast({
+        title: 'Account verified!',
+        description: 'Welcome to DairyFlow.',
+      });
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: 'Verification failed',
+        description: error instanceof Error ? error.message : 'Invalid code',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -69,14 +95,41 @@ export default function Signup() {
                 <Mail className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Check Your Email</CardTitle>
+            <CardTitle className="text-2xl">Enter Verification Code</CardTitle>
             <CardDescription>
-              We've sent a verification link to <strong>{email}</strong>
+              We've sent a 6-digit code to <strong>{email}</strong>
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center text-muted-foreground">
-            <p>Click the link in the email to verify your account and complete signup.</p>
-            <p className="mt-4 text-sm">Didn't receive the email? Check your spam folder.</p>
+          <CardContent className="flex flex-col items-center gap-4">
+            <InputOTP
+              maxLength={6}
+              value={otpCode}
+              onChange={(value) => setOtpCode(value)}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+            <Button 
+              onClick={handleVerifyOtp} 
+              disabled={otpCode.length !== 6 || isVerifying}
+              className="w-full"
+            >
+              {isVerifying ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                'Verify Email'
+              )}
+            </Button>
+            <p className="text-sm text-muted-foreground">Didn't receive the code? Check your spam folder.</p>
           </CardContent>
           <CardFooter className="flex justify-center">
             <Link to="/login" className="text-primary hover:underline">
@@ -87,6 +140,7 @@ export default function Signup() {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
