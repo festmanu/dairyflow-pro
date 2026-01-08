@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authAPI, User } from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser } from '@supabase/supabase-js';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -7,52 +15,78 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name?: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+async function getProfile(userId: string): Promise<{ name: string; role: string } | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('name, role')
+    .eq('user_id', userId)
+    .maybeSingle();
+  
+  if (error || !data) return null;
+  return { name: data.name || '', role: data.role || 'farmer' };
+}
+
+function mapUser(supabaseUser: SupabaseUser, profile?: { name: string; role: string } | null): User {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email || '',
+    name: profile?.name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || '',
+    role: profile?.role || 'farmer',
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const result = await authAPI.verify();
-        if (result.valid && result.user) {
-          setUser(result.user);
-        }
-      } catch (error) {
-        console.error('Auth verification failed:', error);
-      } finally {
-        setIsLoading(false);
+    // Set up auth state listener BEFORE checking session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const profile = await getProfile(session.user.id);
+        setUser(mapUser(session.user, profile));
+      } else {
+        setUser(null);
       }
-    };
+      setIsLoading(false);
+    });
 
-    verifyAuth();
+    // Check initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const profile = await getProfile(session.user.id);
+        setUser(mapUser(session.user, profile));
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
-    const result = await authAPI.login(email, password);
-    if (result.success && result.user) {
-      setUser(result.user);
-    } else {
-      throw new Error(result.error || 'Login failed');
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
   const signup = async (email: string, password: string, name?: string) => {
-    const result = await authAPI.signup(email, password, name);
-    if (result.success && result.user) {
-      setUser(result.user);
-    } else {
-      throw new Error(result.error || 'Signup failed');
-    }
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: { name },
+      },
+    });
+    if (error) throw error;
   };
 
-  const logout = () => {
-    authAPI.logout();
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
