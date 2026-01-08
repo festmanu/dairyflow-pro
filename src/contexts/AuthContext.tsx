@@ -15,7 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name?: string) => Promise<void>;
-  verifyOtp: (email: string, token: string) => Promise<void>;
+  verifyOtp: (email: string, token: string, password?: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -74,25 +74,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const signup = async (email: string, password: string, name?: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signup = async (email: string, _password: string, name?: string) => {
+    // Use signInWithOtp to send a 6-digit code (not a link)
+    const { error } = await supabase.auth.signInWithOtp({
       email,
-      password,
       options: {
-        emailRedirectTo: window.location.origin,
+        shouldCreateUser: true,
         data: { name },
       },
     });
     if (error) throw error;
   };
 
-  const verifyOtp = async (email: string, token: string) => {
+  const verifyOtp = async (email: string, token: string, password?: string, name?: string) => {
     const { error } = await supabase.auth.verifyOtp({
       email,
       token,
-      type: 'signup',
+      type: 'email',
     });
     if (error) throw error;
+    
+    // After OTP verification, set the password
+    if (password) {
+      const { error: updateError } = await supabase.auth.updateUser({ 
+        password,
+        data: { name },
+      });
+      if (updateError) throw updateError;
+    }
   };
 
   const logout = async () => {
