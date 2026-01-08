@@ -13,20 +13,8 @@ interface MongoDBResponse<T = unknown> {
   error?: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-}
-
-interface AuthResponse {
-  success: boolean;
-  user?: User;
-  token?: string;
-  valid?: boolean;
-  error?: string;
-}
+// User type is now exported from AuthContext
+// Auth is handled directly via Supabase Auth in AuthContext
 
 // MongoDB API wrapper
 export const mongoAPI = {
@@ -142,86 +130,4 @@ export const mongoAPI = {
     return (response.data as MongoDBResponse).deletedCount || 0;
   },
 };
-
-// Auth API wrapper
-export const authAPI = {
-  async signup(email: string, password: string, name?: string): Promise<AuthResponse> {
-    const response = await supabase.functions.invoke('auth', {
-      body: { action: 'signup', email, password, name },
-    });
-
-    if (response.error) throw new Error(response.error.message);
-    
-    const data = response.data as AuthResponse;
-    if (data.token) {
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-    }
-    
-    return data;
-  },
-
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await supabase.functions.invoke('auth', {
-      body: { action: 'login', email, password },
-    });
-
-    if (response.error) throw new Error(response.error.message);
-    
-    const data = response.data as AuthResponse;
-    if (data.token) {
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-    }
-    
-    return data;
-  },
-
-  async verify(): Promise<AuthResponse> {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      return { success: false, valid: false };
-    }
-
-    const response = await supabase.functions.invoke('auth', {
-      body: { action: 'verify', token },
-    });
-
-    if (response.error) {
-      this.logout();
-      return { success: false, valid: false };
-    }
-    
-    const data = response.data as AuthResponse;
-    if (data.valid && data.user) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-    } else {
-      this.logout();
-    }
-    
-    return data;
-  },
-
-  logout(): void {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-  },
-
-  getToken(): string | null {
-    return localStorage.getItem('auth_token');
-  },
-
-  getUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    try {
-      return JSON.parse(userStr) as User;
-    } catch {
-      return null;
-    }
-  },
-
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  },
-};
+// Auth is now handled directly via Supabase Auth in AuthContext
