@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Milk } from 'lucide-react';
+import { Loader2, Milk, Mail } from 'lucide-react';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -14,8 +14,8 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const { signup } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,11 +43,11 @@ export default function Signup() {
 
     try {
       await signup(email, password, name);
+      setEmailSent(true);
       toast({
-        title: 'Account created!',
-        description: 'Welcome to DairyFlow. Your account has been created successfully.',
+        title: 'Verification email sent!',
+        description: 'Please check your inbox to verify your email address.',
       });
-      navigate('/dashboard');
     } catch (error) {
       toast({
         title: 'Signup failed',
@@ -58,6 +58,35 @@ export default function Signup() {
       setIsLoading(false);
     }
   };
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Check Your Email</CardTitle>
+            <CardDescription>
+              We've sent a verification link to <strong>{email}</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center text-muted-foreground">
+            <p>Click the link in the email to verify your account and complete signup.</p>
+            <p className="mt-4 text-sm">Didn't receive the email? Check your spam folder.</p>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Link to="/login" className="text-primary hover:underline">
+              Back to Login
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
