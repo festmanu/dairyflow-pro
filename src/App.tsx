@@ -8,6 +8,9 @@ import Dashboard from "./pages/Dashboard";
 import Herd from "./pages/Herd";
 import Health from "./pages/Health";
 import MilkProduction from "./pages/MilkProduction";
+import Breeding from "./pages/Breeding";
+import Nutrition from "./pages/Nutrition";
+import Finance from "./pages/Finance";
 import Alerts from "./pages/Alerts";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -26,6 +29,9 @@ const App = () => (
           <Route path="/herd" element={<Herd />} />
           <Route path="/health" element={<Health />} />
           <Route path="/milk" element={<MilkProduction />} />
+          <Route path="/breeding" element={<Breeding />} />
+          <Route path="/nutrition" element={<Nutrition />} />
+          <Route path="/finance" element={<Finance />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

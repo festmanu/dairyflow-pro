@@ -8,17 +8,23 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Leaf
+  Leaf,
+  Baby,
+  Wheat,
+  DollarSign
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Milk, label: "Herd", path: "/herd" },
   { icon: Stethoscope, label: "Health", path: "/health" },
   { icon: Heart, label: "Milk Production", path: "/milk" },
+  { icon: Baby, label: "Breeding", path: "/breeding" },
+  { icon: Wheat, label: "Nutrition", path: "/nutrition" },
+  { icon: DollarSign, label: "Finance", path: "/finance" },
   { icon: Bell, label: "Alerts", path: "/alerts" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];

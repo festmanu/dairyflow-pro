@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { HealthRecordCard } from "@/components/health/HealthRecordCard";
+import { AddHealthRecordDialog } from "@/components/health/AddHealthRecordDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,20 +11,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockHealthRecords, mockAnimals } from "@/data/mockData";
-import { useState } from "react";
+import { mockHealthRecords as initialRecords, mockAnimals } from "@/data/mockData";
+import { HealthRecord } from "@/types";
 import { Plus, Search, Filter } from "lucide-react";
 
 export default function Health() {
+  const [records, setRecords] = useState<HealthRecord[]>(initialRecords);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const getAnimalName = (animalId: string) => {
     const animal = mockAnimals.find((a) => a.id === animalId);
     return animal ? `${animal.name} (${animal.tagNumber})` : "Unknown";
   };
 
-  const filteredRecords = mockHealthRecords.filter((record) => {
+  const filteredRecords = records.filter((record) => {
     const animalName = getAnimalName(record.animalId).toLowerCase();
     const matchesSearch =
       animalName.includes(searchQuery.toLowerCase()) ||
@@ -31,12 +35,15 @@ export default function Health() {
     return matchesSearch && matchesType;
   });
 
+  const handleAddRecord = (data: Omit<HealthRecord, "id">) => {
+    setRecords((prev) => [...prev, { ...data, id: String(Date.now()) }]);
+  };
+
   return (
     <MainLayout
       title="Health Records"
-      subtitle={`${mockHealthRecords.length} total records`}
+      subtitle={`${records.length} total records`}
     >
-      {/* Filters */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 gap-3">
           <div className="relative flex-1 max-w-md">
@@ -62,13 +69,12 @@ export default function Health() {
             </SelectContent>
           </Select>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setAddDialogOpen(true)}>
           <Plus className="h-4 w-4" />
           Add Record
         </Button>
       </div>
 
-      {/* Records List */}
       <div className="space-y-4">
         {filteredRecords.map((record) => (
           <HealthRecordCard
@@ -87,6 +93,13 @@ export default function Health() {
           </p>
         </div>
       )}
+
+      <AddHealthRecordDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        animals={mockAnimals}
+        onSubmit={handleAddRecord}
+      />
     </MainLayout>
   );
 }
